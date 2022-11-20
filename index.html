@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Snake</title>
+        <style>
+            body {
+                font-family: system-ui;
+            }
+            #myCanvas {
+                background-color: blue;
+            }
+            p {
+                margin: 10px;
+            }
+            .laatikko {
+                clear: both;
+                clear: both;
+                display: flex;
+                justify-content: center;
+                margin: 10px;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="laatikko">
+            <p id="teksti">Size:</p>
+            <input id="myInput">
+            <button id="myBtn">Update</button>
+            <button id="more">+1</button>
+            <button id="less">-1</button>
+            <p id="size">Size: 8</p>
+        </div>
+       <div class="laatikko">
+        <canvas id="myCanvas"></canvas>
+       </div>
+    </body>
+    <script src="script.js"></script>
+    <script src="test.js"></script>
+</html>
