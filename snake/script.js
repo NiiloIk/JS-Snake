@@ -5,23 +5,26 @@ const input = document.getElementById("myInput");
 const teksti = document.getElementById("teksti");
 const more = document.getElementById("more");
 const less = document.getElementById("less");
+const size = document.getElementById("size");
 
-canvas.height = canvas.width = 800;
+canvas.height = canvas.width = 600;
 
 // density = X & Y akselin palikat.
 // eli density = 10^2 käytännössä
+// Eri globaalit variaapelit
 let density = 8;
 let player = [];
 let playerHeadPos;
 let foodpos;
-let direction = 1;
+let direction;
 let check;
 let kytkin = true;
 let X = -1;
 setFoodPos();
-// aloittaa pelin, toimii myös restarttina hyvin
+// aloittaa pelin, toimii myös restarttina.
 function start()
 {
+    size.innerHTML = "Size: " + density + "x" + density;
     player = []
     check = false;
     kytkin = true;
@@ -31,12 +34,12 @@ function start()
         playerHeadPos = Math.round(Math.random() * Math.pow(density, 2));
     }
     player.push(playerHeadPos);
+    X = (playerHeadPos - 1) % density;
     setFoodPos();
 }
 start();
 
-
-// Piirtää kaikki neliöt ruudulla
+// Piirtää kaikki Canvasin sisällä
 function draw()
 {  
     let myNum = 0;
@@ -53,7 +56,13 @@ function draw()
             context.fillStyle = "black"
             if (player.includes(myNum))
             {
-                context.fillStyle = "red"
+                if (kytkin || check)
+                {
+                    context.fillStyle = "red";
+                }
+                else{
+                    context.fillStyle = "grey"
+                }
             }
             context.fillRect(x, y, h - v, h - v);
             if (foodpos == myNum)
@@ -69,6 +78,7 @@ draw();
 
 function run()
 {
+    // Peli käynnissä 
     move(direction);
     if (check)
     {
@@ -93,43 +103,59 @@ function setFoodPos()
 
 function move(int)
 {
-    playerHeadPos += int;
-    checkWalls()
+    playerHeadPos += int;   
     checkPlayerCollision();
-    player.push(playerHeadPos);
-    if (playerHeadPos == foodpos)
+    if (check)
     {
+        player.push(playerHeadPos);
+    }
+    if(player.length == (density*density) && check == true)
+    {
+        // mitä tapahtuu kun voittaa.
+        foodpos = -1;
+        check = false;
+        draw();
+    }
+    else if (playerHeadPos == foodpos)
+    {
+        // mitä tapahtuu jos pelaaja syö ruoan.
         setFoodPos();
+    }
+    else if (check == false)
+    {
+        draw();
     }
     else
     {
+        // kaikki muut tilanteet; eli käytännössä
+        // mitä tapahtuu kun pelaaja liikkuu.
         let del = player.indexOf(player[0])
         player.splice(del, 1)
     }
     X = (playerHeadPos - 1) % density;
     direction = int;
 }
-function checkWalls()
+
+function checkPlayerCollision()
 {
-    // X seinät
-    let F = (playerHeadPos - 1) % density
-    if (X + F == 7 && (X == 0 || F == 0))
-    {
-        check = false;
-    }// Y seinät
-    else if (playerHeadPos < 0 || playerHeadPos > Math.pow(density, 2))
+    // Tarkistaa syökö pelaaja itsensä.
+    if (player.includes(playerHeadPos))
     {
         check = false;
     }
-}
-function checkPlayerCollision()
-{
-    if (player.includes(playerHeadPos))
+    // Tarkistaa osuuko pelaaja seinään X akselilla.
+    let F = (playerHeadPos - 1) % density
+    if (X + F == density - 1 && (X == 0 || F == 0))
+    {
+        check = false;
+    }// Tarkistaa osuuko pelaaja seinään Y akselilla.
+    else if (playerHeadPos < 1 || playerHeadPos > Math.pow(density, 2))
     {
         check = false;
     }
 }
 window.addEventListener('keydown', () =>{
+    // Liikkeet
     switch (event.key) {
         case 'd':
         {
@@ -173,7 +199,7 @@ window.addEventListener('keydown', () =>{
         } 
         case 'r':
         {
-            // alottaa pelin alusta
+            // aloittaa pelin alusta
             start();
             draw();
             break;
@@ -183,26 +209,34 @@ window.addEventListener('keydown', () =>{
 
 
 
-// muuttaa kentän koon.
-button.addEventListener('click', function () {
-    if (input.value == "")
-    {}
-    else {
-        let s = parseInt(input.value)
-        density = s
-    }
-    draw();
+// Muuttaa kentän koon.
+button.addEventListener('click', function(){
+    density = parseInt(input.value);
     input.value = "";
-})
-// +1 nappula 
-more.addEventListener('click', function () {
-    density += 1;
-    input.value = "";
-    draw()
-})
-// -1 nappula
-less.addEventListener('click', function () {
-    density -= 1;
-    input.value = "";
+    start();
     draw();
 })
+
+// Kentän koko +1 nappula.
+more.addEventListener('click', function(){
+    density += 1
+    input.value = "";
+    start();
+    draw();
+})
+
+// Kentän koko -1 nappula.
+less.addEventListener('click', function(){
+    density -= 1
+    input.value = "";
+    start();
+    draw();
+})
+
+/*function changeSize(int)
+{
+    density = parseInt(int);
+    input.value = "";
+    start();
+    draw();
+}*/
